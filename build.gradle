@@ -1,0 +1,47 @@
+plugins {
+    id 'java'
+    id 'war'
+}
+
+group = 'org.example'
+version = '1.0-SNAPSHOT'
+
+java {
+    sourceCompatibility = '17'
+    targetCompatibility = '17'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // JSF API и Implementation (provided by WildFly)
+    compileOnly 'jakarta.faces:jakarta.faces-api:3.0.0'
+    
+    // EclipseLink JPA (включает jakarta.persistence API)
+    implementation 'org.eclipse.persistence:eclipselink:3.0.2'
+    
+    // H2 Database
+    implementation 'com.h2database:h2:2.2.224'
+    
+    // Servlet API (provided by WildFly)
+    compileOnly 'jakarta.servlet:jakarta.servlet-api:6.0.0'
+    compileOnly 'jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api:3.0.0'
+    
+    // CDI для управляемых бинов (provided by WildFly)
+    compileOnly 'jakarta.enterprise:jakarta.enterprise.cdi-api:4.0.1'
+    
+    // JPA API для компиляции (provided by WildFly в runtime)
+    compileOnly 'jakarta.persistence:jakarta.persistence-api:3.1.0'
+    
+    // Transaction API для компиляции (provided by WildFly в runtime)
+    compileOnly 'jakarta.transaction:jakarta.transaction-api:2.0.1'
+    
+    testImplementation platform('org.junit:junit-bom:5.9.1')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+war {
+    archiveFileName = 'web3.war'
+}

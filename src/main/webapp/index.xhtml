@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets">
+
+<f:view>
+    <h:head>
+        <title>Лабораторная работа №3</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        <h:outputStylesheet library="css" name="styles.css"/>
+    </h:head>
+
+    <h:body class="style index-page" style="background-image: url('#{resource['images/background.jpg']}'); background-size: cover; background-repeat: no-repeat; background-position: center; background-attachment: fixed; min-height: 100vh;">
+        <div class="container">
+            <!-- Шапка -->
+            <div class="block">
+                <h1>Павлов Эдгар P3216 12223</h1>
+            </div>
+
+            <!-- Интерактивные часы -->
+            <div class="block">
+                <h2>Текущее время</h2>
+                <div id="clock" class="clock">
+                    #{clockBean.currentDateTime}
+                </div>
+            </div>
+
+            <!-- Ссылка на основную страницу -->
+            <div class="block">
+                <h:link outcome="main" value="Перейти к приложению" styleClass="btn btn-primary"/>
+            </div>
+        </div>
+
+        <!-- Обновление часов каждые 6 секунд -->
+        <script type="text/javascript">
+            function updateClock() {
+                var clockElement = document.getElementById('clock');
+                if (clockElement) {
+                    var now = new Date();
+                    var day = String(now.getDate()).padStart(2, '0');
+                    var month = String(now.getMonth() + 1).padStart(2, '0');
+                    var year = now.getFullYear();
+                    var hours = String(now.getHours()).padStart(2, '0');
+                    var minutes = String(now.getMinutes()).padStart(2, '0');
+                    var seconds = String(now.getSeconds()).padStart(2, '0');
+                    clockElement.textContent = day + '.' + month + '.' + year + ' ' + hours + ':' + minutes + ':' + seconds;
+                }
+            }
+            
+            // Обновление каждые 6 секунд
+            setInterval(updateClock, 6000);
+            updateClock(); // Первое обновление сразу
+        </script>
+    </h:body>
+</f:view>
+</html>
+

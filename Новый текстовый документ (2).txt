@@ -1,0 +1,26 @@
+helios.se.ifmo.ru
+2222
+
+127.0.0.1:18736
+1020
+
+s409297
+ijNg$9236
+    cd wildfly-38.0.1.Final/wildfly-38.0.1.Final/bin/
+    ./standalone.sh
+
+ssh -p 2222 -L 1020:127.0.0.1:18736 s409297@helios.se.ifmo.ru
+    cd wildfly-38.0.1.Final/wildfly-38.0.1.Final/bin/
+   ./jboss-cli.sh --connect --controller=127.0.0.1:9902
+       deploy /home/studs/s409297/wildfly-38.0.1.Final/wildfly-38.0.1.Final/standalone/deployments/area-check.war --force
+    deployment-info --name=area-check.war
+        http://localhost:1020/area-check/
+
+
+<socket-binding name="http" port="${jboss.http.port:18736}"/>
+        <socket-binding name="https" port="${jboss.https.port:8273}"/>
+        <socket-binding name="management-http" interface="management" port="${jboss.management.http.port:9902}"/>
+        <socket-binding name="management-https" interface="management" port="${jboss.management.https.port:43847}"/>
+        <socket-binding name="txn-recovery-environment" port="4712"/>
+        <socket-binding name="txn-status-manager" port="4713"/>
+        <outbound-socket-binding name="mail-smtp">

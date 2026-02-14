@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets">
+
+<f:view>
+    <h:head>
+        <title>Проверка попадания точки в область</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        <h:outputStylesheet library="css" name="styles.css"/>
+    </h:head>
+
+    <h:body class="style">
+        <div class="container">
+            <h1>Проверка попадания точки в область</h1>
+
+            <!-- Динамическая картинка -->
+            <div class="block canvas-block">
+                <h3>График области</h3>
+                <h:panelGroup id="canvasPanel">
+                    <canvas id="areaCanvas" width="500" height="500" 
+                            title="Кликните на графике для выбора координат точки. Синяя область показывает зону попадания"
+                            class="canvas-with-tooltip"></canvas>
+                </h:panelGroup>
+                <p class="hint">Кликните на графике для выбора точки</p>
+            </div>
+
+            <!-- Форма ввода координат -->
+            <h:form id="pointForm">
+                <div id="tooltip" class="tooltip">Введите правильные значения</div>
+
+                <!-- X координата - отдельный блок -->
+                <div class="block input-block">
+                    <h:outputLabel value="Выберите значение X:" styleClass="block-label"/>
+                    <!-- Скрытое поле для X (заполняется при клике на график или через быстрые кнопки) -->
+                    <h:inputHidden id="xValue" value="#{pointBean.x}"/>
+                    
+                    <!-- Быстрый выбор X через commandLink -->
+                    <div class="x-selector" id="xSelector">
+                        <h:commandLink value="-4" action="#{pointBean.setXValue(-4)}" styleClass="x-link">
+                            <f:ajax execute="xValue" render="xSelectedValue pointFormMessages"/>
+                        </h:commandLink>
+                        <h:commandLink value="-3" action="#{pointBean.setXValue(-3)}" styleClass="x-link">
+                            <f:ajax execute="xValue" render="xSelectedValue pointFormMessages"/>
+                        </h:commandLink>
+                        <h:commandLink value="-2" action="#{pointBean.setXValue(-2)}" styleClass="x-link">
+                            <f:ajax execute="xValue" render="xSelectedValue pointFormMessages"/>
+                        </h:commandLink>
+                        <h:commandLink value="-1" action="#{pointBean.setXValue(-1)}" styleClass="x-link">
+                            <f:ajax execute="xValue" render="xSelectedValue pointFormMessages"/>
+                        </h:commandLink>
+                        <h:commandLink value="0" action="#{pointBean.setXValue(0)}" styleClass="x-link">
+                            <f:ajax execute="xValue" render="xSelectedValue pointFormMessages"/>
+                        </h:commandLink>
+                        <h:commandLink value="1" action="#{pointBean.setXValue(1)}" styleClass="x-link">
+                            <f:ajax execute="xValue" render="xSelectedValue pointFormMessages"/>
+                        </h:commandLink>
+                        <h:commandLink value="2" action="#{pointBean.setXValue(2)}" styleClass="x-link">
+                            <f:ajax execute="xValue" render="xSelectedValue pointFormMessages"/>
+                        </h:commandLink>
+                        <h:commandLink value="3" action="#{pointBean.setXValue(3)}" styleClass="x-link">
+                            <f:ajax execute="xValue" render="xSelectedValue pointFormMessages"/>
+                        </h:commandLink>
+                        <h:commandLink value="4" action="#{pointBean.setXValue(4)}" styleClass="x-link">
+                            <f:ajax execute="xValue" render="xSelectedValue pointFormMessages"/>
+                        </h:commandLink>
+                    </div>
+                    <h:outputText id="xSelectedValue" value="Выбрано: #{pointBean.x != null ? pointBean.x : 'не выбрано (кликните на графике)'}" styleClass="x-selected-value"/>
+                </div>
+
+                <!-- Y координата - отдельный блок -->
+                <div class="block input-block">
+                    <h:outputLabel for="yValue" value="Введите значение Y (-5 ... 3):" styleClass="block-label"/>
+                    <h:inputText id="yValue" value="#{pointBean.y}" 
+                                 validator="#{pointBean.validateY}"
+                                 required="true"
+                                 requiredMessage="Y обязательно для заполнения"
+                                 styleClass="form-input"
+                                 title="Введите число от -5 до 3">
+                        <f:ajax event="blur" execute="@this" render="pointFormMessages yValue"/>
+                    </h:inputText>
+                    <h:message for="yValue" styleClass="error-message" id="yValueMessage"/>
+                </div>
+
+                <!-- R радиус - отдельный блок -->
+                <div class="block input-block">
+                    <h:outputLabel for="rValue" value="Выберите значение R:" styleClass="block-label"/>
+                    <h:selectOneMenu id="rValue" value="#{pointBean.r}" 
+                                     validator="#{pointBean.validateR}"
+                                     styleClass="form-select"
+                                     title="Выберите радиус области">
+                        <f:selectItem itemValue="1" itemLabel="1"/>
+                        <f:selectItem itemValue="1.5" itemLabel="1.5"/>
+                        <f:selectItem itemValue="2" itemLabel="2"/>
+                        <f:selectItem itemValue="2.5" itemLabel="2.5"/>
+                        <f:selectItem itemValue="3" itemLabel="3"/>
+                        <f:ajax event="change" execute="@this" render="pointFormMessages rValue"/>
+                    </h:selectOneMenu>
+                    <h:message for="rValue" styleClass="error-message" id="rValueMessage"/>
+                </div>
+
+                <!-- Кнопка отправки - отдельный блок -->
+                <div class="block input-block" style="text-align: center;">
+                    <h:commandButton id="checkButton" value="Отправить" action="#{pointBean.checkPoint()}" 
+                                     styleClass="btn btn-primary"
+                                     title="Проверить попадание точки в область">
+                         <f:ajax execute="pointForm" render="resultsForm:resultsPanel pointFormMessages" 
+                                 onevent="handleAjaxEvent"/>
+                    </h:commandButton>
+                </div>
+                
+                <!-- Глобальные сообщения об ошибках (по центру экрана) -->
+                <h:panelGroup id="pointFormMessages">
+                    <h:messages globalOnly="true" styleClass="error-message"/>
+                </h:panelGroup>
+            </h:form>
+
+            <!-- Таблица результатов -->
+            <div class="block results-block">
+                <h3>Результаты проверок</h3>
+                <h:form id="resultsForm">
+                    <h:panelGroup id="resultsPanel">
+                        <h:dataTable value="#{sessionBean.results}" var="result" 
+                                     styleClass="results-table" headerClass="table-header">
+                            <h:column>
+                                <f:facet name="header">X</f:facet>
+                                #{result.x}
+                            </h:column>
+                            <h:column>
+                                <f:facet name="header">Y</f:facet>
+                                #{result.y}
+                            </h:column>
+                            <h:column>
+                                <f:facet name="header">R</f:facet>
+                                #{result.r}
+                            </h:column>
+                            <h:column>
+                                <f:facet name="header">Результат</f:facet>
+                                <span class="#{result.hit ? 'hit' : 'miss'}">
+                                    #{result.hit ? 'Попадание' : 'Непопадание'}
+                                </span>
+                            </h:column>
+                            <h:column>
+                                <f:facet name="header">Время</f:facet>
+                                #{result.timestamp}
+                            </h:column>
+                            <h:column>
+                                <f:facet name="header">Время выполнения (мкс)</f:facet>
+                                #{result.executionTime}
+                            </h:column>
+                        </h:dataTable>
+                    </h:panelGroup>
+
+                    <div style="text-align: center; margin-top: 15px;">
+                        <h:commandButton value="Очистить результаты" 
+                                         action="#{sessionBean.clearResults()}" 
+                                         styleClass="btn btn-danger">
+                            <f:ajax execute="@this" render="resultsPanel"/>
+                        </h:commandButton>
+                    </div>
+                    <script type="text/javascript">
+                        // Обработка подтверждения очистки через JavaScript
+                        document.addEventListener('DOMContentLoaded', function() {
+                            var clearButton = document.querySelector('#resultsForm button.btn-danger');
+                            if (clearButton) {
+                                clearButton.addEventListener('click', function(e) {
+                                    if (!confirm('Вы уверены, что хотите очистить все результаты?')) {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        return false;
+                                    }
+                                });
+                            }
+                        });
+                    </script>
+                </h:form>
+            </div>
+
+            <!-- Ссылка на стартовую страницу -->
+            <div class="block" style="background: transparent; border: none; padding: 0;">
+                <h:link outcome="index" value="Вернуться на стартовую страницу" styleClass="btn btn-secondary"/>
+            </div>
+        </div>
+
+        <!-- JavaScript для работы с canvas -->
+        <script type="text/javascript" src="#{resource['js/canvas.js']}"></script>
+        <script type="text/javascript">
+            // Инициализация canvas при загрузке страницы
+            function initCanvasOnLoad() {
+                if (typeof initCanvas === 'function') {
+                    initCanvas();
+                }
+                // Загружаем точки для текущего радиуса из таблицы
+                if (typeof loadPointsFromTable === 'function') {
+                    loadPointsFromTable();
+                }
+                if (typeof drawArea === 'function') {
+                    drawArea();
+                }
+                // Восстанавливаем обработчик клика после перерисовки
+                if (typeof setupCanvasClickHandler === 'function') {
+                    setupCanvasClickHandler();
+                }
+                
+                // Инициализация обработчиков ошибок полей
+                setupFieldErrorHandlers();
+            }
+            
+            window.addEventListener('load', initCanvasOnLoad);
+            
+            // Функция для перерисовки canvas
+            function redrawCanvas() {
+                var canvasEl = document.getElementById('areaCanvas');
+                if (canvasEl) {
+                    // Загружаем точки для текущего радиуса перед перерисовкой
+                    if (typeof loadPointsFromTable === 'function') {
+                        loadPointsFromTable();
+                    }
+                    // Используем forceRedraw для полной переинициализации
+                    if (typeof window.forceRedraw === 'function') {
+                        window.forceRedraw();
+                    } else {
+                        // Fallback на отдельные функции
+                        if (typeof window.initCanvas === 'function') {
+                            window.initCanvas();
+                        }
+                        if (typeof window.drawArea === 'function') {
+                            window.drawArea();
+                        }
+                        if (typeof window.setupCanvasClickHandler === 'function') {
+                            window.setupCanvasClickHandler();
+                        }
+                    }
+                }
+            }
+            
+            // Таймер для автоматического скрытия tooltip
+            var tooltipTimer = null;
+            
+            // Функция для показа ошибок в tooltip
+            function showErrorInTooltip(errorText) {
+                var tooltip = document.getElementById('tooltip');
+                if (tooltip &amp;&amp; errorText &amp;&amp; errorText.trim() !== '') {
+                    // Очищаем предыдущий таймер
+                    if (tooltipTimer !== null) {
+                        clearTimeout(tooltipTimer);
+                    }
+                    
+                    tooltip.textContent = errorText;
+                    tooltip.classList.add('show');
+                    
+                    // Автоматически скрываем через 3 секунды
+                    tooltipTimer = setTimeout(function() {
+                        tooltip.classList.remove('show');
+                        setTimeout(function() {
+                            tooltip.textContent = '';
+                        }, 500);
+                        tooltipTimer = null;
+                    }, 3000);
+                }
+            }
+            
+            // Функция для скрытия tooltip
+            function hideTooltip() {
+                var tooltip = document.getElementById('tooltip');
+                if (tooltip) {
+                    if (tooltipTimer !== null) {
+                        clearTimeout(tooltipTimer);
+                        tooltipTimer = null;
+                    }
+                    tooltip.classList.remove('show');
+                    setTimeout(function() {
+                        tooltip.textContent = '';
+                    }, 500);
+                }
+            }
+            
+            // Автоматическое скрытие сообщений об ошибках через 3 секунды
+            function autoHideErrors() {
+                setTimeout(function() {
+                    // Ищем ошибки в DOM
+                    var errorMessages = document.querySelectorAll('#pointFormMessages .error-message, #pointFormMessages li');
+                    errorMessages.forEach(function(msg) {
+                        var text = msg.textContent.trim();
+                        if (text !== '') {
+                            setTimeout(function() {
+                                msg.style.opacity = '0';
+                                setTimeout(function() {
+                                    msg.textContent = '';
+                                    msg.style.opacity = '1';
+                                }, 500);
+                            }, 3000);
+                        }
+                    });
+                }, 300);
+            }
+            
+            // Обработка ошибок AJAX
+            function handleAjaxError(data) {
+                var errorMessage = 'Произошла ошибка при выполнении запроса.';
+                
+                if (data &amp;&amp; data.responseXML) {
+                    // Пытаемся извлечь сообщение об ошибке из ответа
+                    var errorText = data.responseXML.getElementsByTagName('error-name');
+                    if (errorText.length > 0) {
+                        errorMessage = errorText[0].textContent || errorMessage;
+                    }
+                }
+                
+                // Показываем ошибку в tooltip
+                showErrorInTooltip(errorMessage);
+            }
+            
+            // Обработка AJAX событий
+            function handleAjaxEvent(data) {
+                if (data.status === 'error') {
+                    handleAjaxError(data);
+                } else if (data.status === 'success') {
+                    // Проверяем наличие ошибок валидации после успешного запроса
+                    setTimeout(function() {
+                        checkValidationErrors();
+                    }, 500);
+                }
+            }
+            
+            // Проверка ошибок валидации и показ в tooltip
+            function checkValidationErrors() {
+                var errorText = '';
+                
+                // Проверяем сообщения об ошибках для полей Y и R
+                var yMessage = document.getElementById('pointForm:yValueMessage');
+                if (yMessage) {
+                    var yText = yMessage.textContent.trim();
+                    if (yText !== '') {
+                        errorText += yText + '\n';
+                    }
+                }
+                
+                var rMessage = document.getElementById('pointForm:rValueMessage');
+                if (rMessage) {
+                    var rText = rMessage.textContent.trim();
+                    if (rText !== '') {
+                        errorText += rText + '\n';
+                    }
+                }
+                
+                // Проверяем глобальные сообщения
+                var pointFormMessages = document.getElementById('pointFormMessages');
+                if (pointFormMessages) {
+                    var globalText = pointFormMessages.innerText.trim();
+                    if (globalText !== '' &amp;&amp; !errorText.includes(globalText)) {
+                        errorText += globalText;
+                    }
+                }
+                
+                // Показываем ошибки в tooltip, если они есть
+                if (errorText.trim() !== '') {
+                    showErrorInTooltip(errorText.trim());
+                } else {
+                    hideTooltip();
+                }
+            }
+            
+            // Удаление отметок об ошибках при вводе
+            function setupFieldErrorHandlers() {
+                var yInput = document.getElementById('pointForm:yValue');
+                if (yInput) {
+                    yInput.addEventListener('input', function() {
+                        this.classList.remove('input-error');
+                    });
+                }
+                
+                var rSelect = document.getElementById('pointForm:rValue');
+                if (rSelect) {
+                    rSelect.addEventListener('change', function() {
+                        this.classList.remove('input-error');
+                    });
+                }
+            }
+            
+            // Перерисовка canvas после AJAX обновления
+            if (typeof jsf !== 'undefined' &amp;&amp; jsf.ajax) {
+                // Обработка ошибок AJAX
+                jsf.ajax.addOnError(handleAjaxError);
+                
+                // Используем addOnEvent для отслеживания всех AJAX-запросов
+                jsf.ajax.addOnEvent(function(data) {
+                    if (data.status === 'error') {
+                        handleAjaxError(data);
+                        return;
+                    }
+                    
+                    if (data.status === 'success') {
+                        // Проверяем наличие ошибок валидации
+                        setTimeout(function() {
+                            checkValidationErrors();
+                            autoHideErrors();
+                        }, 500);
+                        
+                        // Обновляем визуальное выделение X после выбора через commandLink
+                        setTimeout(function() {
+                            var xInput = document.getElementById('pointForm:xValue');
+                            if (xInput &amp;&amp; xInput.value &amp;&amp; typeof updateXSelection === 'function') {
+                                updateXSelection(xInput.value);
+                            }
+                        }, 100);
+                        
+                        // Перерисовываем canvas после успешного AJAX-запроса
+                        setTimeout(function() {
+                            if (typeof loadPointsFromTable === 'function') {
+                                loadPointsFromTable();
+                            }
+                            redrawCanvas();
+                        }, 300);
+                        
+                        // Переустанавливаем обработчики
+                        setTimeout(function() {
+                            setupRadiusChangeHandler();
+                            setupFieldErrorHandlers();
+                        }, 200);
+                    }
+                });
+            }
+            
+            // Перерисовываем canvas при изменении таблицы результатов
+            var lastResultsCount = 0;
+            setInterval(function() {
+                var resultsTable = document.querySelector('.results-table');
+                if (resultsTable &amp;&amp; resultsTable.rows) {
+                    var currentCount = resultsTable.rows.length;
+                    if (currentCount !== lastResultsCount) {
+                        lastResultsCount = currentCount;
+                        // Загружаем точки и перерисовываем canvas
+                        if (typeof loadPointsFromTable === 'function') {
+                            loadPointsFromTable();
+                        }
+                        redrawCanvas();
+                    }
+                }
+            }, 500);
+
+            // Обработка изменения радиуса
+            function setupRadiusChangeHandler() {
+                var rSelect = document.getElementById('pointForm:rValue');
+                if (rSelect) {
+                    // Удаляем старый обработчик, если есть
+                    rSelect.removeEventListener('change', handleRadiusChangeLocal);
+                    // Добавляем новый обработчик
+                    rSelect.addEventListener('change', handleRadiusChangeLocal);
+                }
+            }
+            
+            function handleRadiusChangeLocal() {
+                // Используем функцию из canvas.js для обработки смены радиуса
+                if (typeof window.handleRadiusChange === 'function') {
+                    window.handleRadiusChange();
+                } else if (typeof window.forceRedraw === 'function') {
+                    window.forceRedraw();
+                }
+            }
+            
+            // Устанавливаем обработчик при загрузке
+            document.addEventListener('DOMContentLoaded', setupRadiusChangeHandler);
+            window.addEventListener('load', setupRadiusChangeHandler);
+            
+            // Также устанавливаем после AJAX-обновлений
+            if (typeof jsf !== 'undefined' &amp;&amp; jsf.ajax) {
+                jsf.ajax.addOnEvent(function(data) {
+                    if (data.status === 'error') {
+                        handleAjaxError(data);
+                        return;
+                    }
+                    
+                    if (data.status === 'success') {
+                        setTimeout(setupRadiusChangeHandler, 200);
+                    }
+                });
+            }
+            
+            // Глобальная обработка необработанных ошибок JavaScript
+            window.addEventListener('error', function(event) {
+                showErrorInTooltip('Произошла ошибка в интерфейсе. Перезагрузите страницу.');
+            });
+        </script>
+    </h:body>
+</f:view>
+</html>
+
