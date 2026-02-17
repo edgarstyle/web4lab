@@ -39,31 +39,31 @@
                     <!-- Быстрый выбор X через commandLink -->
                     <div class="x-selector" id="xSelector">
                         <h:commandLink value="-4" action="#{pointBean.setXValue(-4)}" styleClass="x-link">
-                            <f:ajax execute="xValue" render="xSelectedValue pointFormMessages"/>
+                            <f:ajax render="xValue xSelectedValue pointFormMessages"/>
                         </h:commandLink>
                         <h:commandLink value="-3" action="#{pointBean.setXValue(-3)}" styleClass="x-link">
-                            <f:ajax execute="xValue" render="xSelectedValue pointFormMessages"/>
+                            <f:ajax render="xValue xSelectedValue pointFormMessages"/>
                         </h:commandLink>
                         <h:commandLink value="-2" action="#{pointBean.setXValue(-2)}" styleClass="x-link">
-                            <f:ajax execute="xValue" render="xSelectedValue pointFormMessages"/>
+                            <f:ajax render="xValue xSelectedValue pointFormMessages"/>
                         </h:commandLink>
                         <h:commandLink value="-1" action="#{pointBean.setXValue(-1)}" styleClass="x-link">
-                            <f:ajax execute="xValue" render="xSelectedValue pointFormMessages"/>
+                            <f:ajax render="xValue xSelectedValue pointFormMessages"/>
                         </h:commandLink>
                         <h:commandLink value="0" action="#{pointBean.setXValue(0)}" styleClass="x-link">
-                            <f:ajax execute="xValue" render="xSelectedValue pointFormMessages"/>
+                            <f:ajax render="xValue xSelectedValue pointFormMessages"/>
                         </h:commandLink>
                         <h:commandLink value="1" action="#{pointBean.setXValue(1)}" styleClass="x-link">
-                            <f:ajax execute="xValue" render="xSelectedValue pointFormMessages"/>
+                            <f:ajax render="xValue xSelectedValue pointFormMessages"/>
                         </h:commandLink>
                         <h:commandLink value="2" action="#{pointBean.setXValue(2)}" styleClass="x-link">
-                            <f:ajax execute="xValue" render="xSelectedValue pointFormMessages"/>
+                            <f:ajax render="xValue xSelectedValue pointFormMessages"/>
                         </h:commandLink>
                         <h:commandLink value="3" action="#{pointBean.setXValue(3)}" styleClass="x-link">
-                            <f:ajax execute="xValue" render="xSelectedValue pointFormMessages"/>
+                            <f:ajax render="xValue xSelectedValue pointFormMessages"/>
                         </h:commandLink>
                         <h:commandLink value="4" action="#{pointBean.setXValue(4)}" styleClass="x-link">
-                            <f:ajax execute="xValue" render="xSelectedValue pointFormMessages"/>
+                            <f:ajax render="xValue xSelectedValue pointFormMessages"/>
                         </h:commandLink>
                     </div>
                     <h:outputText id="xSelectedValue" value="Выбрано: #{pointBean.x != null ? pointBean.x : 'не выбрано (кликните на графике)'}" styleClass="x-selected-value"/>
@@ -160,7 +160,6 @@
                         </h:commandButton>
                     </div>
                     <script type="text/javascript">
-                        // Обработка подтверждения очистки через JavaScript
                         document.addEventListener('DOMContentLoaded', function() {
                             var clearButton = document.querySelector('#resultsForm button.btn-danger');
                             if (clearButton) {
@@ -183,45 +182,36 @@
             </div>
         </div>
 
-        <!-- JavaScript для работы с canvas -->
         <script type="text/javascript" src="#{resource['js/canvas.js']}"></script>
         <script type="text/javascript">
-            // Инициализация canvas при загрузке страницы
             function initCanvasOnLoad() {
                 if (typeof initCanvas === 'function') {
                     initCanvas();
                 }
-                // Загружаем точки для текущего радиуса из таблицы
                 if (typeof loadPointsFromTable === 'function') {
                     loadPointsFromTable();
                 }
                 if (typeof drawArea === 'function') {
                     drawArea();
                 }
-                // Восстанавливаем обработчик клика после перерисовки
                 if (typeof setupCanvasClickHandler === 'function') {
                     setupCanvasClickHandler();
                 }
                 
-                // Инициализация обработчиков ошибок полей
                 setupFieldErrorHandlers();
             }
             
             window.addEventListener('load', initCanvasOnLoad);
             
-            // Функция для перерисовки canvas
             function redrawCanvas() {
                 var canvasEl = document.getElementById('areaCanvas');
                 if (canvasEl) {
-                    // Загружаем точки для текущего радиуса перед перерисовкой
                     if (typeof loadPointsFromTable === 'function') {
                         loadPointsFromTable();
                     }
-                    // Используем forceRedraw для полной переинициализации
                     if (typeof window.forceRedraw === 'function') {
                         window.forceRedraw();
                     } else {
-                        // Fallback на отдельные функции
                         if (typeof window.initCanvas === 'function') {
                             window.initCanvas();
                         }
@@ -235,14 +225,11 @@
                 }
             }
             
-            // Таймер для автоматического скрытия tooltip
             var tooltipTimer = null;
             
-            // Функция для показа ошибок в tooltip
             function showErrorInTooltip(errorText) {
                 var tooltip = document.getElementById('tooltip');
                 if (tooltip &amp;&amp; errorText &amp;&amp; errorText.trim() !== '') {
-                    // Очищаем предыдущий таймер
                     if (tooltipTimer !== null) {
                         clearTimeout(tooltipTimer);
                     }
@@ -250,7 +237,6 @@
                     tooltip.textContent = errorText;
                     tooltip.classList.add('show');
                     
-                    // Автоматически скрываем через 3 секунды
                     tooltipTimer = setTimeout(function() {
                         tooltip.classList.remove('show');
                         setTimeout(function() {
@@ -261,7 +247,6 @@
                 }
             }
             
-            // Функция для скрытия tooltip
             function hideTooltip() {
                 var tooltip = document.getElementById('tooltip');
                 if (tooltip) {
@@ -276,10 +261,8 @@
                 }
             }
             
-            // Автоматическое скрытие сообщений об ошибках через 3 секунды
             function autoHideErrors() {
                 setTimeout(function() {
-                    // Ищем ошибки в DOM
                     var errorMessages = document.querySelectorAll('#pointFormMessages .error-message, #pointFormMessages li');
                     errorMessages.forEach(function(msg) {
                         var text = msg.textContent.trim();
@@ -296,39 +279,32 @@
                 }, 300);
             }
             
-            // Обработка ошибок AJAX
             function handleAjaxError(data) {
                 var errorMessage = 'Произошла ошибка при выполнении запроса.';
                 
                 if (data &amp;&amp; data.responseXML) {
-                    // Пытаемся извлечь сообщение об ошибке из ответа
                     var errorText = data.responseXML.getElementsByTagName('error-name');
                     if (errorText.length > 0) {
                         errorMessage = errorText[0].textContent || errorMessage;
                     }
                 }
                 
-                // Показываем ошибку в tooltip
                 showErrorInTooltip(errorMessage);
             }
             
-            // Обработка AJAX событий
             function handleAjaxEvent(data) {
                 if (data.status === 'error') {
                     handleAjaxError(data);
                 } else if (data.status === 'success') {
-                    // Проверяем наличие ошибок валидации после успешного запроса
                     setTimeout(function() {
                         checkValidationErrors();
                     }, 500);
                 }
             }
             
-            // Проверка ошибок валидации и показ в tooltip
             function checkValidationErrors() {
                 var errorText = '';
                 
-                // Проверяем сообщения об ошибках для полей Y и R
                 var yMessage = document.getElementById('pointForm:yValueMessage');
                 if (yMessage) {
                     var yText = yMessage.textContent.trim();
@@ -345,7 +321,6 @@
                     }
                 }
                 
-                // Проверяем глобальные сообщения
                 var pointFormMessages = document.getElementById('pointFormMessages');
                 if (pointFormMessages) {
                     var globalText = pointFormMessages.innerText.trim();
@@ -354,7 +329,6 @@
                     }
                 }
                 
-                // Показываем ошибки в tooltip, если они есть
                 if (errorText.trim() !== '') {
                     showErrorInTooltip(errorText.trim());
                 } else {
@@ -362,7 +336,6 @@
                 }
             }
             
-            // Удаление отметок об ошибках при вводе
             function setupFieldErrorHandlers() {
                 var yInput = document.getElementById('pointForm:yValue');
                 if (yInput) {
@@ -379,12 +352,9 @@
                 }
             }
             
-            // Перерисовка canvas после AJAX обновления
             if (typeof jsf !== 'undefined' &amp;&amp; jsf.ajax) {
-                // Обработка ошибок AJAX
                 jsf.ajax.addOnError(handleAjaxError);
                 
-                // Используем addOnEvent для отслеживания всех AJAX-запросов
                 jsf.ajax.addOnEvent(function(data) {
                     if (data.status === 'error') {
                         handleAjaxError(data);
@@ -392,21 +362,21 @@
                     }
                     
                     if (data.status === 'success') {
-                        // Проверяем наличие ошибок валидации
                         setTimeout(function() {
                             checkValidationErrors();
                             autoHideErrors();
                         }, 500);
                         
-                        // Обновляем визуальное выделение X после выбора через commandLink
                         setTimeout(function() {
                             var xInput = document.getElementById('pointForm:xValue');
                             if (xInput &amp;&amp; xInput.value &amp;&amp; typeof updateXSelection === 'function') {
-                                updateXSelection(xInput.value);
+                                var xValue = parseFloat(xInput.value);
+                                if (!isNaN(xValue)) {
+                                    updateXSelection(xValue);
+                                }
                             }
-                        }, 100);
+                        }, 200);
                         
-                        // Перерисовываем canvas после успешного AJAX-запроса
                         setTimeout(function() {
                             if (typeof loadPointsFromTable === 'function') {
                                 loadPointsFromTable();
@@ -414,7 +384,6 @@
                             redrawCanvas();
                         }, 300);
                         
-                        // Переустанавливаем обработчики
                         setTimeout(function() {
                             setupRadiusChangeHandler();
                             setupFieldErrorHandlers();
@@ -423,7 +392,6 @@
                 });
             }
             
-            // Перерисовываем canvas при изменении таблицы результатов
             var lastResultsCount = 0;
             setInterval(function() {
                 var resultsTable = document.querySelector('.results-table');
@@ -431,7 +399,6 @@
                     var currentCount = resultsTable.rows.length;
                     if (currentCount !== lastResultsCount) {
                         lastResultsCount = currentCount;
-                        // Загружаем точки и перерисовываем canvas
                         if (typeof loadPointsFromTable === 'function') {
                             loadPointsFromTable();
                         }
@@ -440,19 +407,15 @@
                 }
             }, 500);
 
-            // Обработка изменения радиуса
             function setupRadiusChangeHandler() {
                 var rSelect = document.getElementById('pointForm:rValue');
                 if (rSelect) {
-                    // Удаляем старый обработчик, если есть
                     rSelect.removeEventListener('change', handleRadiusChangeLocal);
-                    // Добавляем новый обработчик
                     rSelect.addEventListener('change', handleRadiusChangeLocal);
                 }
             }
             
             function handleRadiusChangeLocal() {
-                // Используем функцию из canvas.js для обработки смены радиуса
                 if (typeof window.handleRadiusChange === 'function') {
                     window.handleRadiusChange();
                 } else if (typeof window.forceRedraw === 'function') {
@@ -460,11 +423,9 @@
                 }
             }
             
-            // Устанавливаем обработчик при загрузке
             document.addEventListener('DOMContentLoaded', setupRadiusChangeHandler);
             window.addEventListener('load', setupRadiusChangeHandler);
             
-            // Также устанавливаем после AJAX-обновлений
             if (typeof jsf !== 'undefined' &amp;&amp; jsf.ajax) {
                 jsf.ajax.addOnEvent(function(data) {
                     if (data.status === 'error') {
@@ -478,7 +439,6 @@
                 });
             }
             
-            // Глобальная обработка необработанных ошибок JavaScript
             window.addEventListener('error', function(event) {
                 showErrorInTooltip('Произошла ошибка в интерфейсе. Перезагрузите страницу.');
             });

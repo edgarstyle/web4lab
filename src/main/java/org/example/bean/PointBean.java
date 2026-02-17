@@ -41,7 +41,6 @@ public class PointBean implements Serializable {
     }
 
     public void setX(BigDecimal x) {
-        // Валидация: X должен быть в диапазоне от -5 до 3
         if (x != null && (x.compareTo(MIN_X) < 0 || x.compareTo(MAX_X) > 0)) {
             ErrorHandler.handleValidationError("X должно быть в диапазоне от -5 до 3");
             return;
@@ -49,7 +48,6 @@ public class PointBean implements Serializable {
         this.x = x;
     }
     
-    // Дополнительный сеттер для String
     public void setX(String xStr) {
         if (xStr == null || xStr.trim().isEmpty()) {
             this.x = null;
@@ -57,7 +55,6 @@ public class PointBean implements Serializable {
         }
         try {
             BigDecimal xValue = new BigDecimal(xStr.trim());
-            // Валидация: X должен быть в диапазоне от -5 до 3
             if (xValue.compareTo(MIN_X) < 0 || xValue.compareTo(MAX_X) > 0) {
                 ErrorHandler.handleValidationError("X должно быть в диапазоне от -5 до 3");
                 this.x = null;
@@ -74,12 +71,10 @@ public class PointBean implements Serializable {
         }
     }
     
-    // Метод для установки X через commandLink
     public String setXValue(Double value) {
         try {
             if (value != null) {
                 BigDecimal xValue = BigDecimal.valueOf(value);
-                // Валидация: X должен быть в диапазоне от -5 до 3
                 if (xValue.compareTo(MIN_X) < 0 || xValue.compareTo(MAX_X) > 0) {
                     ErrorHandler.handleValidationError("X должно быть в диапазоне от -5 до 3");
                     return null;
@@ -92,7 +87,7 @@ public class PointBean implements Serializable {
             logger.log(Level.WARNING, "Ошибка при установке X через commandLink", e);
             ErrorHandler.handleValidationError("Ошибка при выборе значения X");
         }
-        return null; // Остаемся на той же странице (ViewScoped сохраняет состояние)
+        return null;
     }
 
     public BigDecimal getY() {
@@ -103,7 +98,6 @@ public class PointBean implements Serializable {
         this.y = y;
     }
     
-    // Дополнительный сеттер для String
     public void setY(String yStr) {
         if (yStr == null || yStr.trim().isEmpty()) {
             this.y = null;
@@ -128,7 +122,6 @@ public class PointBean implements Serializable {
         this.r = r;
     }
     
-    // Дополнительный сеттер для String (JSF может передавать String из selectOneMenu)
     public void setR(String rStr) {
         if (rStr == null || rStr.trim().isEmpty()) {
             this.r = new BigDecimal("1.0");
@@ -153,7 +146,6 @@ public class PointBean implements Serializable {
 
     public String checkPoint() {
         try {
-            // Валидация обязательных полей
             if (x == null) {
                 ErrorHandler.handleValidationError("Необходимо выбрать значение X (кликните на графике или выберите из списка)");
                 return null;
@@ -176,7 +168,6 @@ public class PointBean implements Serializable {
                 return null;
             }
 
-            // Проверка попадания точки
             long startTime = System.nanoTime();
             boolean hit;
             try {
@@ -187,9 +178,8 @@ public class PointBean implements Serializable {
                 return null;
             }
             
-            long executionTime = (System.nanoTime() - startTime) / 1000; // микросекунды
+            long executionTime = (System.nanoTime() - startTime) / 1000;
 
-            // Создание и сохранение результата
             Result result = new Result(x, y, r, hit);
             result.setExecutionTime(executionTime);
             
@@ -216,7 +206,7 @@ public class PointBean implements Serializable {
 
     public void validateY(FacesContext context, UIComponent component, Object value) throws ValidatorException {
         if (value == null) {
-            return; // required="true" обработает это
+            return;
         }
 
         BigDecimal yValue;
@@ -228,7 +218,7 @@ public class PointBean implements Serializable {
             } else if (value instanceof String) {
                 String strValue = ((String) value).trim();
                 if (strValue.isEmpty()) {
-                    return; // required="true" обработает это
+                    return;
                 }
                 try {
                     yValue = new BigDecimal(strValue);

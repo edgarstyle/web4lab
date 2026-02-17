@@ -136,7 +136,6 @@ public class ResultService {
                 }
             }
             logger.log(Level.SEVERE, "Ошибка при получении результатов из базы данных", e);
-            // Возвращаем пустой список, чтобы не ломать UI
             return new java.util.ArrayList<>();
         } catch (Exception e) {
             if (tx.isActive()) {

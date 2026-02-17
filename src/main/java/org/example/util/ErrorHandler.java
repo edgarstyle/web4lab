@@ -42,10 +42,8 @@ public class ErrorHandler {
             logLevel = Level.SEVERE;
         }
 
-        // Логируем техническую информацию
         logger.log(logLevel, "Ошибка: " + userMessage, e);
 
-        // Добавляем сообщение пользователю
         context.addMessage(null, new FacesMessage(
                 FacesMessage.SEVERITY_ERROR,
                 "Ошибка",

@@ -34,8 +34,6 @@ public class SessionBean implements Serializable {
                 results = new java.util.ArrayList<>();
             }
         } catch (Exception e) {
-            // При первой инициализации БД может быть еще не готова
-            // Инициализируем пустой список
             if (results == null) {
                 results = new java.util.ArrayList<>();
             }
@@ -58,12 +56,10 @@ public class SessionBean implements Serializable {
                 results = new java.util.ArrayList<>();
             }
         } catch (Exception e) {
-            // В случае ошибки возвращаем пустой список, чтобы не ломать UI
             if (results == null) {
                 results = new java.util.ArrayList<>();
             }
             logger.log(Level.SEVERE, "Ошибка при загрузке результатов", e);
-            // Не показываем ошибку пользователю, так как это может быть временная проблема
         }
     }
 
@@ -95,7 +91,6 @@ public class SessionBean implements Serializable {
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Ошибка при добавлении результата", e);
             ErrorHandler.handleError(e, "Не удалось сохранить результат. Попробуйте еще раз.");
-            // Не перезагружаем результаты, чтобы не потерять текущее состояние
         }
     }
 
