@@ -8,22 +8,22 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "results")
 @NamedQueries({
-    @NamedQuery(name = "Result.findByUser", query = "SELECT r FROM Result r WHERE r.user.id = :userId ORDER BY r.timestamp DESC")
+    @NamedQuery(name = "Result.findAll", query = "SELECT r FROM Result r ORDER BY r.timestamp DESC")
 })
 public class Result implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column(nullable = false, precision = 31, scale = 15)
+    @Column(nullable = false, precision = 50, scale = 30)
     private BigDecimal x;
 
-    @Column(nullable = false, precision = 31, scale = 15)
+    @Column(nullable = false, precision = 50, scale = 30)
     private BigDecimal y;
 
-    @Column(nullable = false, precision = 31, scale = 15)
+    @Column(nullable = false, precision = 50, scale = 30)
     private BigDecimal r;
 
     @Column(nullable = false)
@@ -34,10 +34,6 @@ public class Result implements Serializable {
 
     @Column
     private Long executionTime;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
 
     public Result() {
     }
@@ -105,14 +101,6 @@ public class Result implements Serializable {
 
     public void setExecutionTime(Long executionTime) {
         this.executionTime = executionTime;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
     }
 }
 

@@ -26,13 +26,8 @@ ssh -p 2222 -L 1020:127.0.0.1:18736 s409297@helios.se.ifmo.ru
         <outbound-socket-binding name="mail-smtp">
 
 
-# 1. Перейти в папку проекта
 cd C:\ITMO\Веб\Лаб4\Web4Frontend
-
-# 2. Установить зависимости (только первый раз)
 npm install
-
-# 3. Запустить приложение
 npm start
 
 http://localhost:3000
