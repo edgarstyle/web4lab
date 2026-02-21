@@ -12,9 +12,9 @@ ijNg$9236
 ssh -p 2222 -L 1020:127.0.0.1:18736 s409297@helios.se.ifmo.ru
     cd wildfly-38.0.1.Final/wildfly-38.0.1.Final/bin/
    ./jboss-cli.sh --connect --controller=127.0.0.1:9902
-       deploy /home/studs/s409297/wildfly-38.0.1.Final/wildfly-38.0.1.Final/standalone/deployments/web3.war --force
-    deployment-info --name=web3.war
-        http://localhost:1020/web3/
+       deploy /home/studs/s409297/wildfly-38.0.1.Final/wildfly-38.0.1.Final/standalone/deployments/web4.war --force
+    deployment-info --name=web4.war
+        http://localhost:1020/web4/
 
 
 <socket-binding name="http" port="${jboss.http.port:18736}"/>
@@ -24,3 +24,15 @@ ssh -p 2222 -L 1020:127.0.0.1:18736 s409297@helios.se.ifmo.ru
         <socket-binding name="txn-recovery-environment" port="4712"/>
         <socket-binding name="txn-status-manager" port="4713"/>
         <outbound-socket-binding name="mail-smtp">
+
+
+# 1. Перейти в папку проекта
+cd C:\ITMO\Веб\Лаб4\Web4Frontend
+
+# 2. Установить зависимости (только первый раз)
+npm install
+
+# 3. Запустить приложение
+npm start
+
+http://localhost:3000

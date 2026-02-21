@@ -16,18 +16,25 @@ repositories {
 }
 
 dependencies {
-    // JSF API и Implementation (provided by WildFly)
-    compileOnly 'jakarta.faces:jakarta.faces-api:3.0.0'
+    // EJB API (provided by WildFly)
+    compileOnly 'jakarta.ejb:jakarta.ejb-api:4.0.1'
+    
+    // REST API (JAX-RS)
+    compileOnly 'jakarta.ws.rs:jakarta.ws.rs-api:3.1.0'
+    
+    // JSON Processing
+    implementation 'jakarta.json:jakarta.json-api:2.1.1'
+    implementation 'org.glassfish:jakarta.json:2.0.1'
     
     // EclipseLink JPA (включает jakarta.persistence API)
     implementation 'org.eclipse.persistence:eclipselink:3.0.2'
     
-    // H2 Database
-    implementation 'com.h2database:h2:2.2.224'
+    // Apache Derby Database
+    implementation 'org.apache.derby:derby:10.16.1.1'
+    implementation 'org.apache.derby:derbyclient:10.16.1.1'
     
     // Servlet API (provided by WildFly)
     compileOnly 'jakarta.servlet:jakarta.servlet-api:6.0.0'
-    compileOnly 'jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api:3.0.0'
     
     // CDI для управляемых бинов (provided by WildFly)
     compileOnly 'jakarta.enterprise:jakarta.enterprise.cdi-api:4.0.1'
@@ -38,10 +45,99 @@ dependencies {
     // Transaction API для компиляции (provided by WildFly в runtime)
     compileOnly 'jakarta.transaction:jakarta.transaction-api:2.0.1'
     
+    // Password hashing (BCrypt)
+    implementation 'org.mindrot:jbcrypt:0.4'
+    
     testImplementation platform('org.junit:junit-bom:5.9.1')
     testImplementation 'org.junit.jupiter:junit-jupiter'
+}                                                                                                                                                                                                                                                                                   
+
+// Задача для копирования собранного frontend в webapp
+task copyFrontend(type: Copy) {
+    description = 'Копирует собранный frontend в webapp'
+    from '../Web4Frontend/dist'
+    into 'src/main/webapp'
+    // Включаем все файлы из dist (включая index.html)
+    include '**/*'
+    
+    // Удаляем старый index.html перед копированием
+    doFirst {
+        def oldIndex = file('src/main/webapp/index.html')
+        if (oldIndex.exists() && oldIndex.text.contains('Web4 REST API')) {
+            println 'Удаление старого index.html...'
+            oldIndex.delete()
+        }
+    }
 }
 
+// Определяем команду npm в зависимости от ОС
+def isWindows = System.getProperty('os.name').toLowerCase().contains('windows')
+
+// Задача для сборки frontend
+task buildFrontend(type: Exec) {
+    description = 'Собирает frontend приложение'
+    workingDir '../Web4Frontend'
+    
+    // В Windows используем cmd для выполнения npm, в Linux/Mac - напрямую
+    if (isWindows) {
+        // В Windows npm обычно доступен как npm.cmd или через cmd
+        executable 'cmd'
+        args '/c', 'npm', 'run', 'build'
+    } else {
+        executable 'npm'
+        args 'run', 'build'
+    }
+    
+    // Проверяем наличие Node.js перед выполнением
+    doFirst {
+        println 'Проверка наличия Node.js/npm...'
+        
+        def checkExecutable = isWindows ? 'cmd' : 'npm'
+        def checkArgs = isWindows ? ['/c', 'npm', '--version'] : ['--version']
+        
+        try {
+            def process = new ProcessBuilder(checkExecutable, *checkArgs)
+                .redirectErrorStream(true)
+                .start()
+            
+            def output = new StringBuilder()
+            def reader = new BufferedReader(new InputStreamReader(process.inputStream))
+            def line
+            while ((line = reader.readLine()) != null) {
+                output.append(line).append('\n')
+            }
+            
+            def exitCode = process.waitFor()
+            
+            if (exitCode != 0) {
+                throw new GradleException(
+                    'Node.js/npm не найден!\n\n' +
+                    'Установите Node.js: https://nodejs.org/\n' +
+                    'Проверьте, что Node.js добавлен в PATH.\n' +
+                    'Попробуйте выполнить в терминале: npm --version'
+                )
+            }
+            
+            def version = output.toString().trim()
+            println "✓ Найден npm версии: $version"
+        } catch (IOException e) {
+            throw new GradleException(
+                'Не удалось выполнить команду npm!\n\n' +
+                'Убедитесь, что:\n' +
+                '1. Node.js установлен: https://nodejs.org/\n' +
+                '2. Node.js добавлен в PATH\n' +
+                '3. Перезапустите терминал после установки\n\n' +
+                'Попробуйте выполнить в терминале: npm --version\n' +
+                'Ошибка: ' + e.message
+            )
+        }
+    }
+}
+
+// Зависимости: сначала собрать frontend, потом скопировать, потом собрать WAR
+copyFrontend.dependsOn buildFrontend
+war.dependsOn copyFrontend
+
 war {
-    archiveFileName = 'web3.war'
+    archiveFileName = 'web4.war'
 }
