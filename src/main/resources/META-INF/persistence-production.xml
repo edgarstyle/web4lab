@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="https://jakarta.ee/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence
+             https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd"
+             version="3.0">
+
+    <persistence-unit name="web4PU" transaction-type="RESOURCE_LOCAL">
+        <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+        
+        <class>org.example.entity.Result</class>
+        <class>org.example.entity.User</class>
+        
+        <properties>
+            <!-- Apache Derby Embedded Database Configuration -->
+            <!-- Production: файловая БД (данные сохраняются при перезагрузке) -->
+            <!-- 
+                ВАЖНО: Перед использованием убедитесь, что директория /opt/web4/database существует
+                и имеет права доступа для пользователя wildfly:
+                sudo mkdir -p /opt/web4/database
+                sudo chown wildfly:wildfly /opt/web4/database
+                sudo chmod 755 /opt/web4/database
+            -->
+            <property name="jakarta.persistence.jdbc.driver" value="org.apache.derby.iapi.jdbc.AutoloadedDriver"/>
+            <property name="jakarta.persistence.jdbc.url" value="jdbc:derby:/opt/web4/database/web4db;create=true"/>
+            <property name="jakarta.persistence.jdbc.user" value="app"/>
+            <property name="jakarta.persistence.jdbc.password" value="app"/>
+            
+            <!-- EclipseLink Properties -->
+            <property name="eclipselink.ddl-generation" value="none"/>
+            <property name="eclipselink.ddl-generation.output-mode" value="database"/>
+            <property name="eclipselink.logging.level" value="INFO"/>
+            <property name="eclipselink.logging.parameters" value="true"/>
+            <property name="eclipselink.weaving" value="false"/>
+        </properties>
+    </persistence-unit>
+
+</persistence>
+
+
