@@ -16,18 +16,20 @@ repositories {
 }
 
 dependencies {
-    // JSF API и Implementation (provided by WildFly)
-    compileOnly 'jakarta.faces:jakarta.faces-api:3.0.0'
-    
     // EclipseLink JPA (включает jakarta.persistence API)
     implementation 'org.eclipse.persistence:eclipselink:3.0.2'
     
-    // H2 Database
-    implementation 'com.h2database:h2:2.2.224'
+    // Apache Derby Database
+    implementation 'org.apache.derby:derby:10.16.1.1'
     
-    // Servlet API (provided by WildFly)
-    compileOnly 'jakarta.servlet:jakarta.servlet-api:6.0.0'
-    compileOnly 'jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api:3.0.0'
+    // BCrypt for password hashing
+    implementation 'org.mindrot:jbcrypt:0.4'
+    
+    // JAX-RS API (provided by WildFly)
+    compileOnly 'jakarta.ws.rs:jakarta.ws.rs-api:3.1.0'
+    
+    // EJB API (provided by WildFly)
+    compileOnly 'jakarta.ejb:jakarta.ejb-api:4.0.1'
     
     // CDI для управляемых бинов (provided by WildFly)
     compileOnly 'jakarta.enterprise:jakarta.enterprise.cdi-api:4.0.1'
@@ -43,5 +45,5 @@ dependencies {
 }
 
 war {
-    archiveFileName = 'web3.war'
+    archiveFileName = 'web4.war'
 }
